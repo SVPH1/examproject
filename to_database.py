@@ -47,7 +47,8 @@ def to_database():
     engine = create_engine('postgresql://postgres:5731@localhost:5432/ENTSOE')
     load_table = 'zone_load'
     generation_table = 'zone_generation'
-    folder = "data/harmonized/"
+    folder = "data/harmonized/" 
+    
     
     
     for file in os.listdir(folder):
