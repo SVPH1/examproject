@@ -22,9 +22,7 @@ def create_table(generation_table_creation):
         Wind_Onshore = Column(Float)
     Base.metadata.create_all(generation_table_creation)
 
-def countries_load_and_generation():
-    #Creates database connection, replace with your credentials
-    engine = create_engine('postgresql://USER:PASSWORD@localhost:5432/ENTSOE')
+def countries_load_and_generation(engine):
     load_table = 'load'
     generation_table = 'generation'
     folder = "data/harmonized/"
@@ -44,9 +42,8 @@ def countries_load_and_generation():
             pass
     print("All files transferred to database.")
 
-def SE_zones():
-    #Creates database connection, replace with your credentials
-    engine = create_engine('postgresql://USER:PASSWORD@localhost:5432/ENTSOE')
+def SE_zones(engine):
+    
     create_table(engine)
     load_table = 'SE_zones_load'
     folder = "data/harmonized/SE_zones/" 
@@ -83,6 +80,9 @@ def SE_zones():
             pass
     print("All files transferred to database.")
 
-create_table()
-countries_load_and_generation()
-SE_zones()
+
+#Creates database connection, replace with your credentials
+engine = create_engine('postgresql://USER:PASSWORD@localhost:5432/ENTSOE')
+create_table(engine)
+countries_load_and_generation(engine)
+SE_zones(engine)
