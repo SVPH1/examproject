@@ -18,7 +18,8 @@ engine = sqlalchemy.create_engine('postgresql://postgres:tAggA67!@localhost:5432
 # Display the first 5 rows of the dataframe
 #print(df.head())
 with engine.connect() as connection:
-   df = pd.read_sql("SELECT * FROM load WHERE country = 'SE'",connection)
+   df = pd.read_sql("SELECT * FROM generation WHERE country = 'SE'",connection)
+   df = df.drop_duplicates()
 #print(df.columns.keys())
 app = dash.Dash()
 app.layout = html.Div([
@@ -26,8 +27,8 @@ app.layout = html.Div([
         id='line-plot',
         figure={
             'data': [
-                {'x': df['timestamp'], 'y': df['forecasted_load'], 'type': 'line', 'name': 'Forecasted Load'},
-                {'x': df['timestamp'], 'y': df['actual_load'], 'type': 'line', 'name': 'Actual Load'},
+                {'x': df['timestamp'], 'y': df['nuclear'], 'type': 'line', 'name': 'Forecasted Load'},
+                {'x': df['timestamp'], 'y': df['wind_offshore'], 'type': 'line', 'name': 'Actual Load'},
             ],
             'layout': {
                 'title': 'Line Plot of Forecasted Load and Actual Load'
