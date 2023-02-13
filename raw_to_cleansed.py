@@ -20,15 +20,14 @@ def raw_to_cleansed():
         print(file)
 
         # Split the path to get country code
-        filename_split = file.split("_", maxsplit = 3)
+        filename_split = file.split("_", maxsplit = 4)
         year = filename_split[0][-4:]
-
-        if len(filename_split) == 2:
+        if len(filename_split) == 3:
             country_code = filename_split[1]
+            data_category = filename_split[2][0:-4]
         else:
-            country_code = filename_split[1] + "_" + year[0]
-
-        data_category = filename_split[2][1:-4]
+            country_code = filename_split[1] + "_" + filename_split[2]
+            data_category = filename_split[3][0:-4]
 
         with open(file) as f:
             # Read file and create DataFrame
