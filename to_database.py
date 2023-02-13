@@ -82,7 +82,7 @@ def SE_zones(engine):
 
 
 #Creates database connection, replace with your credentials
-engine = create_engine('postgresql://USER:PASSWORD@localhost:5432/ENTSOE')
+engine = create_engine('postgresql://postgres:tAggA67!@localhost:5432/entsoe')
 create_table(engine)
 countries_load_and_generation(engine)
 SE_zones(engine)
