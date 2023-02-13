@@ -18,7 +18,7 @@ engine = sqlalchemy.create_engine('postgresql://postgres:tAggA67!@localhost:5432
 # Display the first 5 rows of the dataframe
 #print(df.head())
 with engine.connect() as connection:
-   df= pd.read_sql("SELECT * FROM load WHERE Country = 'SE'",connection)
+   df= pd.read_sql("SELECT * FROM load WHERE country = 'SE'",connection)
 #print(df.columns.keys())
 app = dash.Dash()
 app.layout = html.Div([
