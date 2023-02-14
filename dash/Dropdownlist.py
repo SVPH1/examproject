@@ -4,19 +4,13 @@ import dash_html_components as html
 import sqlalchemy
 import pandas as pd
 from dash.dependencies import Input, Output
+import plotly.graph_objects as go
 
 engine = sqlalchemy.create_engine('postgresql://postgres:tAggA67!@localhost:5432/entsoe')
 # Load data from the ENTSOE table into a pandas dataframe
 df_load = pd.read_sql_table('load', engine)
 
 # print (df_load)
-
-fig_ba={
-'data': [
-{'x': df_load[df_load['country'] == 'DE']['timestamp'], 'y': df_load[df_load['country'] == 'DE']
-['forecasted_load'], 'type': 'line', 'name': 'forecasted_load DE', 'line': {'color': 'red'}}
-]
-}
 
 app = dash.Dash(__name__)
 
@@ -53,14 +47,33 @@ app.layout = html.Div([
     Input('dropdown', 'value')
 )
 def update_figures(selected_option):
-    # Generate the plots based on the selected option
-    # and return them as a list of dictionaries
     if selected_option == 'option1':
-        figures = fig_ba
+        # Filter the DataFrame for the selected country
+        df_filtered = df_load[df_load['country'] == 'SE']
+        # Create a line chart with the filtered data
+        figures = {'data': [go.Scatter(x=df_filtered['timestamp'], y=df_filtered['forecasted_load'],
+        mode='lines', name='forecasted_load SE', line={'color': 'red'})]}
+        # Update the layout of the figure
+        figures['layout'] = {'title': 'SE Forecasted Load', 'xaxis': {'title': 'Timestamp'}, 'yaxis': {'title': 'Load'}}
+
+        return [{'data': [{'x': df_load[df_load['country'] == 'SE']['timestamp'], 'y': df_load[df_load['country'] == 'SE']
+        ['forecasted_load'], 'type': 'line', 'name': 'forecasted_load SE', 'line': {'color': 'blue'}}]}]
+
+
     elif selected_option == 'option2':
-        figures = [
-            {'data': [{'x': [1, 5, 3], 'y': [3, 6, 9], 'type': 'bar'}]}
-        ]
+        # Filter the DataFrame for the selected country
+        df_filtered = df_load[df_load['country'] == 'DE']
+        # Create a line chart with the filtered data
+        figures = {'data': [go.Scatter(x=df_filtered['timestamp'], y=df_filtered['forecasted_load'],
+        mode='lines', name='forecasted_load SE', line={'color': 'red'})]}
+        # Update the layout of the figure
+        figures['layout'] = {'title': 'DE Forecasted Load', 'xaxis': {'title': 'Timestamp'}, 'yaxis': {'title': 'Load'}}
+
+        return [{'data': [{'x': df_load[df_load['country'] == 'DE']['timestamp'], 'y': df_load[df_load['country'] == 'DE']
+        ['forecasted_load'], 'type': 'line', 'name': 'forecasted_load DE', 'line': {'color': 'red'}}]}]
+
+    
+
     elif selected_option == 'option3':
         figures = [
             {'data': [{'x': [1, 8, 3], 'y': [3, 6, 9], 'type': 'bar'}]}
@@ -118,7 +131,7 @@ def update_figures(selected_option):
             {'data': [{'x': [1, 2, 3], 'y': [2, 4, 8], 'type': 'bar'}]}
         ]
     
-    return figures
+    # return figures
 
 if __name__ == '__main__':
     app.run_server(debug=True)
