@@ -11,73 +11,99 @@ import dash_bootstrap_components as dbc
 from dash import Input, Output, dcc, html, ctx
 import pandas as pd
 import plotly.express as px
+from sqlalchemy import text
+import sqlalchemy
+import plotly.graph_objects as go
 
 # Initialise the App
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP, ])
 image_path = 'assets/logo.png'
 
+# Connect to the database using SQLAlchemy
+engine = sqlalchemy.create_engine('postgresql://postgres:Vera1234?@localhost:5432/entsoe')
+
+# Load data from the ENTSOE table into a pandas dataframe
+
+df_load = pd.read_sql_table("load", engine)
+#with engine.connect() as connection:
+   #df_load= pd.read_sql("SELECT * FROM load",connection)
+
+
+# Slider
+
 
 #################
-# 1 # Bar plot ##
+# 1 # Line plot ##
 #################
+# Line plot
+fig_ba={
+'data': [
+{'x': df_load[df_load['country'] == 'DE']['timestamp'], 'y': df_load[df_load['country'] == 'DE']['forecasted_load'], 'type': 'line', 'name': 'forecasted_load DE', 'line': {'color': 'red'}},
+{'x': df_load[df_load['country'] == 'DE']['timestamp'], 'y': df_load[df_load['country'] == 'DE']['actual_load'], 'type': 'line', 'name': 'actual_load DE', 'line': {'color': 'blue'}},
+{'x': df_load[df_load['country'] == 'FR']['timestamp'], 'y': df_load[df_load['country'] == 'FR']['forecasted_load'], 'type': 'line', 'name': 'forecasted_load FR', 'line': {'color': 'green'}},
+{'x': df_load[df_load['country'] == 'FR']['timestamp'], 'y': df_load[df_load['country'] == 'FR']['actual_load'], 'type': 'line', 'name': 'actual_load FR', 'line': {'color': 'yellow'}},
+{'x': df_load[df_load['country'] == 'SE']['timestamp'], 'y': df_load[df_load['country'] == 'SE']['forecasted_load'], 'type': 'line', 'name': 'forecasted_load SE', 'line': {'color': 'black'}},
+{'x': df_load[df_load['country'] == 'SE']['timestamp'], 'y': df_load[df_load['country'] == 'SE']['actual_load'], 'type': 'line', 'name': 'actual_load SE', 'line': {'color': 'purple'}},
+{'x': df_load[df_load['country'] == 'DK']['timestamp'], 'y': df_load[df_load['country'] == 'DK']['forecasted_load'], 'type': 'line', 'name': 'forecasted_load DK', 'line': {'color': 'pink'}},
+{'x': df_load[df_load['country'] == 'DK']['timestamp'], 'y': df_load[df_load['country'] == 'DK']['actual_load'], 'type': 'line', 'name': 'actual_load DK', 'line': {'color': 'gray'}},
 
-df = pd.read_csv('outfile.csv')
-df['Unnamed: 0'] = pd.to_datetime(df['Unnamed: 0'])
-df.set_index('Unnamed: 0', inplace=True)
-# Data
-df_ba = px.data.gapminder()
-df_options = df_ba[df_ba["continent"].isin(["Europe"])]["country"].unique()
-df_ba = df_ba[df_ba["country"].isin(["Spain", "United Kingdom"])]
-
-# Figure
-#fig_ba = oPlotly.line(df, x=df.index, y = 'Forecasted Load')
-#fig.add_ba((=df['x'], y = df['Actual Load'], mode='lines', line=dict(width=2, color='red')
-# Figure
-fig_ba = px.bar(
-   
-    df_ba,
-    x="year",
-    y="lifeExp",
-    color="country",
-    barmode="group",
-    title="Grouped Bar Chart",
-    template="plotly_white",
-)
-fig_ba.update_yaxes(range=[60, 80])
+],
+'layout': {
+'title': 'Line Plot of Forecasted Load and Actual Load by Country',
+'template': "plotly_white" 
+}
+}
+#fig_ba.update_yaxes(range=[60, 80])
 
 # Dropdown
 dropdown_ba = dcc.Dropdown(
-    options=df_options, value=["Spain", "United Kingdom"], multi=True
-)
-
+    id='country-dropdown',
+    options=[
+            {'label': 'SE', 'value': 'SE'},
+            {'label': 'FR', 'value': 'FR'},
+            {'label': 'DE', 'value': 'DE'},
+            {'label': 'DK', 'value': 'DK'},
+        ],
+        value='SE'
+    )
+"""
 # Slider
 slider_ba = dcc.Slider(
-    df_ba["year"].min(),
-    df_ba["year"].max(),
+    df_load["year"].min(),
+    df_load["year"].max(),
     5,
-    value=df_ba["year"].min() + 10,
+    value=df_load["year"].min() + 10,
     marks=None,
     tooltip={"placement": "bottom", "always_visible": True},
 )
-
+"""
 # Radio items
 radio_items_ba = dbc.RadioItems(
     options=[
         {"label": "Day", "value": 0},
-        {"label": "Week ", "value": 1},
+        {"label": "Week", "value": 1},
         {"label": "Month", "value": 2},
         {"label": "Year", "value": 3}
     ],
     value=0,
     inline=True,
 )
-
+def group_data(df_load, frequency):
+    if frequency == 0: # Day
+        return df_load
+    elif frequency == 1: # Week
+        return df_load.groupby(df_load['timestamp'].dt.week).sum()
+    elif frequency == 2: # Month
+        return df_load.groupby(df_load['timestamp'].dt.month).sum()
+    elif frequency == 3: # Year
+        return df_load.groupby(df_load['timestamp'].dt.year).sum()
+    
 # Card content
 card_content_ba_1 = dbc.Card([
     dbc.CardHeader("Card header"),
     dbc.CardBody(
         [
-            html.H5("Card title"),
+            html.H5("Covid"),
             html.P(
                 "Here you might want to add some statics or further information for your dashboard",
             ),
@@ -85,7 +111,7 @@ card_content_ba_1 = dbc.Card([
     ])
     
 card_content_ba_2 = dbc.Card([
-    dbc.CardHeader("Card header"),
+    dbc.CardHeader("Ukraine War"),
     dbc.CardBody(
         [
             html.H5("Card title"),
@@ -289,7 +315,7 @@ def update_page(n1, n2, n3, n4):
                         dbc.Col(
                             [
                                 dbc.Card(
-                                    dcc.Graph(id="figure1", figure=fig_ba),
+                                    dcc.Graph(id='forecasted_load_vs_actual_load', figure=fig_ba),
                                     color="light",
                                 )
                             ]
@@ -307,8 +333,8 @@ def update_page(n1, n2, n3, n4):
                         ),
                         dbc.Col(
                             [
-                                html.P("Select a year"),
-                                slider_ba,
+                                #html.P("Select a year"),
+                               # slider_ba,
                             ]
                         ),
                         dbc.Col(
