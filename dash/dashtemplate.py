@@ -14,22 +14,20 @@ import plotly.express as px
 from sqlalchemy import text
 import sqlalchemy
 import plotly.graph_objects as go
+import psycopg2
 
 # Initialise the App
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP, ])
 image_path = 'assets/logo.png'
 
 # Connect to the database using SQLAlchemy
-
 engine = sqlalchemy.create_engine('postgresql://postgres:5731@localhost:5432/ENTSOE')
-
 
 # Load data from the ENTSOE table into a pandas dataframe
 
 df_load = pd.read_sql_table("load", engine)
 #with engine.connect() as connection:
    #df_load= pd.read_sql("SELECT * FROM load",connection)
-
 # Slider
 
 
@@ -39,7 +37,6 @@ df_load = pd.read_sql_table("load", engine)
 # Line plot
 fig_ba={
 'data': [
-
 # {'x': df_load[df_load['country'] == 'DE']['timestamp'], 'y': df_load[df_load['country'] == 'DE']['forecasted_load'], 'type': 'line', 'name': 'forecasted_load DE', 'line': {'color': 'red'}},
 # {'x': df_load[df_load['country'] == 'DE']['timestamp'], 'y': df_load[df_load['country'] == 'DE']['actual_load'], 'type': 'line', 'name': 'actual_load DE', 'line': {'color': 'blue'}},
 # {'x': df_load[df_load['country'] == 'FR']['timestamp'], 'y': df_load[df_load['country'] == 'FR']['forecasted_load'], 'type': 'line', 'name': 'forecasted_load FR', 'line': {'color': 'green'}},
@@ -105,7 +102,6 @@ fig_ba={
 
 # fig_ba.update_yaxes(range=[60, 80])
 
-
 # Dropdown
 dropdown_ba = dcc.Dropdown(
     id='country-dropdown',
@@ -151,15 +147,12 @@ def group_data(df_load, frequency):
     
 # Card content
 card_content_ba_1 = dbc.Card([
-
     dbc.CardHeader("Covid-19"),
     dbc.CardBody(
         [
             html.H5("Important dates:"),
             html.P(
                 "2020-01-31 - First confirmed case of COVID-19 in Sweden",
-
-
             ),
         ])
     ])
@@ -168,7 +161,6 @@ card_content_ba_2 = dbc.Card([
     dbc.CardHeader("Ukraine War"),
     dbc.CardBody(
         [
-
             html.H5("Important dates:"),
             html.P(
                 "2022-02-24 - Russia invades Ukraine",
@@ -177,7 +169,6 @@ card_content_ba_2 = dbc.Card([
     ])
 
 card_content_ba_3 = dbc.Card([
-
     dbc.CardHeader("This is also important"),
     dbc.CardBody(
         [
@@ -188,9 +179,8 @@ card_content_ba_3 = dbc.Card([
         ])
     ])
 ##################
-# 2 # Line plot ##
+# 2 # Generation ##
 ##################
-
 
 # SQL goes brrrrrr
 ###### GERMANY ######
@@ -369,10 +359,69 @@ card_content_generation_tip = dbc.Card([
         [
             html.H5("Tip:"),
             html.H6(
-                "You can click on a title under energy source on the legend to remove it from the graph or double click it to view it on its own")
+                "You can click on a title under energy source on the legend to remove it from the graph or double click it to view it on its own"),
 
-        ])
+        ]
+        
+        )
     ])
+
+#####################################################3
+#MAP
+#####################################################3
+
+# Setting up connection - DO NOT FORGET TO FEED CONNECTION INFO
+connection = psycopg2.connect(
+    host = "localhost",
+    database = "ENTSOE",
+    user = "postgres",
+    password = "5731"
+    )
+
+# Create a cursor to perform database operations
+cursor = connection.cursor()
+
+# Executing a SQL query
+# FROM "... load_table ..."
+
+
+cursor.execute("SELECT * FROM se_zones_load WHERE timestamp >= '2017-01-01' AND timestamp < '2018-01-01';")
+
+# Fetch result
+data = cursor.fetchall()
+cols = []
+for elt in cursor.description:
+    cols.append(elt[0])
+
+# DataFrame from Database
+df_map = pd.DataFrame(
+    data = data,
+    columns = cols
+)
+df_map = df_map.drop_duplicates()
+df_map = df_map.groupby(df_map['se_zone'], as_index = False).sum()
+print(df_map)
+
+fig_map = go.Figure()
+
+fig_map.add_trace(
+    go.Choroplethmapbox(
+        geojson = 'new_map.geojson', #Assign geojson file
+        featureidkey = 'properties.se_zone', #Assign feature key
+        locations = df_map['se_zone'], #Assign location data
+        z = df_map['actual_load'], #Assign information data
+        zauto = True,
+        colorscale = 'orrd',
+        showscale = True,
+                ))
+                
+fig_map.update_layout( # Add the layout here
+    mapbox_style="carto-positron",
+    mapbox_zoom=6,
+    mapbox_center={'lat': 57.43, 'lon': 11.60},
+    title="Mapppy",
+    
+    )
 
 #########################################################################################################
 # 3 GENERATION SE ZONES ##
@@ -435,15 +484,12 @@ card_content_se_zones_generation =[
             html.Hr()
             
             
-
         ]
     ),
 ]
 
 
-
 #########################################################################################################
-
 
 # Styling
 SIDEBAR_STYLE = {
@@ -474,27 +520,25 @@ SIDEBAR_STYLE = {
 }
 sidebar = html.Div(
     [
-        html.H2("Data Choice"),
+        html.H2("Visualization options", style={"text-align": "center", "margin": "auto"}),
         html.Hr(),
-        html.P("Visualization options"),
-
-        dbc.Button("Country comparison", color="light", n_clicks=0, id="Bar plot", style={'padding': '10px 20px','width': '180px'}),
-        html.Hr(),
-        dbc.Button("Energy ", color="light", n_clicks=0, id="Line plot", style={'padding': '10px 20px','width': '180px'}),
-        html.Hr(),
-        dbc.Button("El-områden in Sweden", color="light", n_clicks=0, id="Scatter plot", style={'padding': '10px 20px','width': '180px'}),
-        html.Hr(),
+        
         dbc.Button("Start Page", color="light", n_clicks=0, id="Start Page", style={'padding': '10px 20px', 'width': '180px'}),
         html.Hr(),
+        dbc.Button("Country comparison", color="light", n_clicks=0, id="Bar plot", style={'padding': '10px 20px','width': '180px'}),
+        html.Hr(),
+        dbc.Button("Generation per country ", color="light", n_clicks=0, id="Generation per country", style={'padding': '10px 20px','width': '180px'}),
+        html.Hr(),
+        dbc.Button("Energy consumption for SE zones", color="light", n_clicks=0, id="Chloroplethmapbox", style={'padding': '10px 20px','width': '180px'}),
+        html.Hr(),
+        dbc.Button("Generation per SE zones", color="light", n_clicks=0, id="Generation per SE_zone", style={'padding': '10px 20px','width': '180px'}),
+        html.Hr(),
         html.Br(),  # Add a break to push the image to the bottom
         html.Br(),  # Add a break to push the image to the bottom
         html.Br(),  # Add a break to push the image to the bottom
         html.Br(),  # Add a break to push the image to the bottom
         html.Br(),  # Add a break to push the image to the bottom
-        html.Br(),  # Add a break to push the image to the bottom
-        html.Br(),  # Add a break to push the image to the bottom
-
-
+        
 
         html.Img(src=image_path, height=200, width=180), 
     ],
@@ -533,11 +577,13 @@ app.layout = html.Div(
 @app.callback(
     Output("page-content", "children"),
     Input("Bar plot", "n_clicks"),
-    Input("Line plot", "n_clicks"),
-    Input("Scatter plot", "n_clicks"),
+    Input("Generation per country", "n_clicks"),
+    Input("Chloroplethmapbox", "n_clicks"),
+    Input("Generation per SE_zone", "n_clicks"),
     Input("Start Page", "n_clicks")
+    
 )
-def update_page(n1, n2, n3, n4):
+def update_page(n1, n2, n3, n4, n5):
     if ctx.triggered_id == "Bar plot":
         return dbc.Container(
             [
@@ -589,29 +635,24 @@ def update_page(n1, n2, n3, n4):
             fluid=True,
             style={"height": "100vh"},  
         )
-    elif ctx.triggered_id == "Line plot":
+    elif ctx.triggered_id == "Generation per country":
         return dbc.Container(
             [
                 dbc.Row(
                     [
                         dbc.Col(
                             [
-
                                 dbc.Row(dbc.Card(card_content_generation, color="#A2BBBE")),
-
                             ],
                             width=4,
                         ),
                         dbc.Col(
                             dbc.Card(
-
                                 dcc.Graph(id='generation_graph'), color="light"
                             ),
                             width=8,
                         ),
-                        dbc.Col([dbc.Card(card_content_generation_tip, color="light")]),
-
-
+                        dbc.Col( [dbc.Card(card_content_generation_tip, color="light", style={'padding': '0px 0px', 'width': '475px'} )]),
                     ]
                 ),
             ],
@@ -619,10 +660,29 @@ def update_page(n1, n2, n3, n4):
             fluid=True,
             style={"height": "100vh"}, 
         )
-    elif ctx.triggered_id == "Scatter plot":
+    elif ctx.triggered_id == "Chloroplethmapbox":
+                return dbc.Container(
+            [
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            dbc.Card(
+                                dcc.Graph(id='nisse', figure=fig_map), color="light"
+                            ),
+                            width=8,
+                        ),
+                        
+                    ]
+                )
+        
+        ],
+            className="bg-#A2BBBE",
+            fluid=True,
+            style={"height": "100vh"}, 
+        )    
+    elif ctx.triggered_id == "Generation per SE_zone":
         return dbc.Container(
             [
-
                 dbc.Row(
                     [
                         dbc.Col(
@@ -639,7 +699,6 @@ def update_page(n1, n2, n3, n4):
                         ),
                         # dbc.Col([dbc.Card(card_content_se_zones_generation, color="light")]),
                     ]
-
                 ),
             ],
             className="bg-#A2BBBE",
@@ -648,11 +707,9 @@ def update_page(n1, n2, n3, n4):
         )
     elif ctx.triggered_id == "Start Page":
         return dbc.Container(
-
             [   html.H2("Welcome to VIDA",
             className="text-center"),
                 html.Br(),
-
                 html.H5(
                     "Please navigate to an analysed data set with the navigation on the left.",
                     className="text-center"
