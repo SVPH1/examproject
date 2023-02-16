@@ -31,6 +31,9 @@ df_load = pd.read_sql_table("load", engine)
 # Slider
 
 
+df_load['timestamp'] = pd.to_datetime(df_load['timestamp'])
+
+
 #################
 # 1 # Line plot ##
 #################
@@ -65,8 +68,8 @@ slider_ba = dcc.Slider(
     tooltip={"placement": "bottom", "always_visible": True},
 )
 """
-
-checklist = dcc.Checklist(
+card_content_checklist = dbc.Card(
+    dcc.Checklist(
         id='graph-checkboxes',
         options=[
             {'label': 'SVERIGEEEEE', 'value': 'graph_1'},
@@ -79,34 +82,53 @@ checklist = dcc.Checklist(
             {'label': 'FR Actual Load', 'value': 'graph_8'},
             
         ],
+        labelStyle={'display': 'block', 'margin': '10px'},
         value=['graph_1'],
-        labelStyle={'display': 'inline-block'}
+        )
+    )
+
+
+range_slider = dcc.RangeSlider(
+        id='year-slider',
+        min=df_load['timestamp'].min().year,
+        max=df_load['timestamp'].max().year,
+        value=[df_load['timestamp'].min().year, df_load['timestamp'].max().year],
+        marks={str(year): str(year) for year in range(df_load['timestamp'].min().year, df_load['timestamp'].max().year + 1)},
+        step=None
     )
 
 @app.callback(
-    Output('graph', 'figure'),
-    Input('graph-checkboxes', 'value'))
-def checkbox(checkbox_values):
+Output('graph', 'figure'),
+Input('graph-checkboxes', 'value'),
+Input('year-slider', 'value'))
+def checkbox(checkbox_values, selected_years):
+    # Filter the data based on the selected years
+    filtered_df = df_load[(df_load['timestamp'] >= pd.to_datetime(str(selected_years[0]))) & (df_load['timestamp'] <= pd.to_datetime(str(selected_years[1])))]
+
     data = []
-    if 'graph_1' in checkbox_values:
-        data.append(graph_1)
-    if 'graph_2' in checkbox_values:
-        data.append(graph_2)
-    if 'graph_3' in checkbox_values:
-        data.append(graph_3)
-    if 'graph_4' in checkbox_values:
-        data.append(graph_4)
-    if 'graph_5' in checkbox_values:
-        data.append(graph_5)
-    if 'graph_6' in checkbox_values:
-        data.append(graph_6)
-    if 'graph_7' in checkbox_values:
-        data.append(graph_7)
-    if 'graph_8' in checkbox_values:
-        data.append(graph_8)
-    fig = {'data': data, 'layout': go.Layout(title='Multiple Graphs')}
+    for checkbox_value in checkbox_values:
+        if checkbox_value == 'graph_1':
+            data.append(go.Scatter(x=filtered_df[filtered_df['country'] == 'SE']['timestamp'], y=filtered_df[filtered_df['country'] == 'SE']['forecasted_load'], name='SE_FL', line=dict(color='#990000')))
+        elif checkbox_value == 'graph_2':
+            data.append(go.Scatter(x=filtered_df[filtered_df['country'] == 'SE']['timestamp'], y=filtered_df[filtered_df['country'] == 'SE']['actual_load'], name='SE_AL', line=dict(color='#FF9999'), opacity=0.5))
+        elif checkbox_value == 'graph_3':
+            data.append(go.Scatter(x=filtered_df[filtered_df['country'] == 'DE']['timestamp'], y=filtered_df[filtered_df['country'] == 'DE']['forecasted_load'], name='DE_FL', line=dict(color='#520052')))
+        elif checkbox_value == 'graph_4':
+            data.append(go.Scatter(x=filtered_df[filtered_df['country'] == 'DE']['timestamp'], y=filtered_df[filtered_df['country'] == 'DE']['actual_load'], name='DE_AL', line=dict(color='#E680E6'), opacity=0.5))
+        elif checkbox_value == 'graph_5':
+            data.append(go.Scatter(x=filtered_df[filtered_df['country'] == 'DK']['timestamp'], y=filtered_df[filtered_df['country'] == 'DK']['forecasted_load'], name='DK_FL', line=dict(color='#1F3D99')))
+        elif checkbox_value == 'graph_6':
+            data.append(go.Scatter(x=filtered_df[filtered_df['country'] == 'DK']['timestamp'], y=filtered_df[filtered_df['country'] == 'DK']['actual_load'], name='DK_AL', line=dict(color='#85A3FF'), opacity=0.5))
+        elif checkbox_value == 'graph_7':
+            data.append(go.Scatter(x=filtered_df[filtered_df['country'] == 'FR']['timestamp'], y=filtered_df[filtered_df['country'] == 'FR']['forecasted_load'], name='FR_FL', line=dict(color='#1A661A')))
+        elif checkbox_value == 'graph_8':
+            data.append(go.Scatter(x=filtered_df[filtered_df['country'] == 'FR']['timestamp'], y=filtered_df[filtered_df['country'] == 'FR']['actual_load'], name='FR_AL', line=dict(color='#85E085'), opacity=0.5))
+
+    layout = go.Layout(title='Load Profiles', xaxis=dict(title='Time'), yaxis=dict(title='Load (MW)'))
+    fig = go.Figure(data=data, layout=layout)
 
     return fig
+
 
     
 # Card content
@@ -554,7 +576,7 @@ def update_page(n1, n2, n3, n4, n5):
                 dbc.Row(
                     [
                         dbc.Col(
-                            [
+                            [range_slider,
                                 dbc.Card(
                                     dcc.Graph(id='graph'),
                                     color="light",
@@ -569,7 +591,8 @@ def update_page(n1, n2, n3, n4, n5):
                         dbc.Col(
                             [
                                 html.P("Select the countries to display"),
-                                checklist,
+                                card_content_checklist,
+                            
                             ]
                         ),
                         dbc.Col(
