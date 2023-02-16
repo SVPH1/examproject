@@ -22,13 +22,13 @@ df_load = pd.DataFrame(data, columns=cols)
 df_load['timestamp'] = pd.to_datetime(df_load['timestamp'])
 
 # Add a range slider for years
-year_slider = dcc.RangeSlider(
-    id='year-slider',
-    min=df_load['timestamp'].dt.year.min(),
-    max=df_load['timestamp'].dt.year.max(),
-    value=[df_load['timestamp'].dt.year.min(), df_load['timestamp'].dt.year.max()],
-    marks={str(year): str(year) for year in range(df_load['timestamp'].dt.year.min(), df_load['timestamp'].dt.year.max()+1, 5)}
-)
+# year_slider = dcc.RangeSlider(
+#     id='year-slider',
+#     min=df_load['timestamp'].dt.year.min(),
+#     max=df_load['timestamp'].dt.year.max(),
+#     value=[df_load['timestamp'].dt.year.min(), df_load['timestamp'].dt.year.max()],
+#     marks={str(year): str(year) for year in range(df_load['timestamp'].dt.year.min(), df_load['timestamp'].dt.year.max()+1, 5)}
+# )
 
 graph_1 = go.Scatter(x=df_load[df_load['country'] == 'SE']['timestamp'], y=df_load[df_load['country'] == 'SE']
 ['forecasted_load'], name='SE_FL',line=dict(color='#990000'))
@@ -47,6 +47,7 @@ graph_7 = go.Scatter(x=df_load[df_load['country'] == 'FR']['timestamp'], y=df_lo
 graph_8 = go.Scatter(x=df_load[df_load['country'] == 'FR']['timestamp'], y=df_load[df_load['country'] == 'FR']
 ['actual_load'], name='FR_AL',line=dict(color='#85E085'),opacity=0.5)
 
+# Define the layout of your app
 # Define the layout of your app
 app.layout = html.Div(children=[
     html.H1(children='Multiple Graphs with Checkboxes'),
@@ -68,35 +69,53 @@ app.layout = html.Div(children=[
         labelStyle={'display': 'inline-block'}
     ),
 
+    dcc.RangeSlider(
+        id='year-slider',
+        min=df_load['timestamp'].min().year,
+        max=df_load['timestamp'].max().year,
+        value=[df_load['timestamp'].min().year, df_load['timestamp'].max().year],
+        marks={str(year): str(year) for year in range(df_load['timestamp'].min().year, df_load['timestamp'].max().year + 1)},
+        step=None
+    ),
+
     dcc.Graph(
         id='graph'
     )
 ])
 
+
 # Define the callback function that updates the graph based on the checkbox values
+# Define the callback function that updates the graph based on the checkbox values and the year slider
 @app.callback(
     dash.dependencies.Output('graph', 'figure'),
-    [dash.dependencies.Input('graph-checkboxes', 'value')])
-def update_graph(checkbox_values):
-    data = []
-    if 'graph_1' in checkbox_values:
-        data.append(graph_1)
-    if 'graph_2' in checkbox_values:
-        data.append(graph_2)
-    if 'graph_3' in checkbox_values:
-        data.append(graph_3)
-    if 'graph_4' in checkbox_values:
-        data.append(graph_4)
-    if 'graph_5' in checkbox_values:
-        data.append(graph_5)
-    if 'graph_6' in checkbox_values:
-        data.append(graph_6)
-    if 'graph_7' in checkbox_values:
-        data.append(graph_7)
-    if 'graph_8' in checkbox_values:
-        data.append(graph_8)
+    [dash.dependencies.Input('graph-checkboxes', 'value'),
+     dash.dependencies.Input('year-slider', 'value')])
+def update_graph(checkbox_values, selected_years):
+    # Filter the data based on the selected years
+    filtered_df = df_load[(df_load['timestamp'] >= pd.to_datetime(str(selected_years[0]))) & (df_load['timestamp'] <= pd.to_datetime(str(selected_years[1])))]
 
-    return {'data': data, 'layout': go.Layout(title='Multiple Graphs')}
+    data = []
+    for checkbox_value in checkbox_values:
+        if checkbox_value == 'graph_1':
+            data.append(go.Scatter(x=filtered_df[filtered_df['country'] == 'SE']['timestamp'], y=filtered_df[filtered_df['country'] == 'SE']['forecasted_load'], name='SE_FL', line=dict(color='#990000')))
+        elif checkbox_value == 'graph_2':
+            data.append(go.Scatter(x=filtered_df[filtered_df['country'] == 'SE']['timestamp'], y=filtered_df[filtered_df['country'] == 'SE']['actual_load'], name='SE_AL', line=dict(color='#FF9999'), opacity=0.5))
+        elif checkbox_value == 'graph_3':
+            data.append(go.Scatter(x=filtered_df[filtered_df['country'] == 'DE']['timestamp'], y=filtered_df[filtered_df['country'] == 'DE']['forecasted_load'], name='DE_FL', line=dict(color='#520052')))
+        elif checkbox_value == 'graph_4':
+            data.append(go.Scatter(x=filtered_df[filtered_df['country'] == 'DE']['timestamp'], y=filtered_df[filtered_df['country'] == 'DE']['actual_load'], name='DE_AL', line=dict(color='#E680E6'), opacity=0.5))
+        elif checkbox_value == 'graph_5':
+            data.append(go.Scatter(x=filtered_df[filtered_df['country'] == 'DK']['timestamp'], y=filtered_df[filtered_df['country'] == 'DK']['forecasted_load'], name='DK_FL', line=dict(color='#1F3D99')))
+        elif checkbox_value == 'graph_6':
+            data.append(go.Scatter(x=filtered_df[filtered_df['country'] == 'DK']['timestamp'], y=filtered_df[filtered_df['country'] == 'DK']['actual_load'], name='DK_AL', line=dict(color='#85A3FF'), opacity=0.5))
+        elif checkbox_value == 'graph_7':
+            data.append(go.Scatter(x=filtered_df[filtered_df['country'] == 'FR']['timestamp'], y=filtered_df[filtered_df['country'] == 'FR']['forecasted_load'], name='FR_FL', line=dict(color='#1A661A')))
+        elif checkbox_value == 'graph_8':
+            data.append(go.Scatter(x=filtered_df[filtered_df['country'] == 'FR']['timestamp'], y=filtered_df[filtered_df['country'] == 'FR']['actual_load'], name='FR_AL', line=dict(color='#85E085'), opacity=0.5))
+
+    layout = go.Layout(title='Load Profiles', xaxis=dict(title='Time'), yaxis=dict(title='Load (MW)'))
+
+    return go.Figure(data=data, layout=layout)
 
 if __name__ == '__main__':
     app.run_server(debug=True)
