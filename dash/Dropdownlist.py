@@ -6,7 +6,7 @@ import pandas as pd
 from dash.dependencies import Input, Output
 import plotly.graph_objects as go
 
-engine = sqlalchemy.create_engine('postgresql://postgres:tAggA67!@localhost:5432/entsoe')
+engine = sqlalchemy.create_engine('postgresql+psycopg2://postgres:tAggA67!@localhost:5432/entsoe')
 # Load data from the ENTSOE table into a pandas dataframe
 df_load = pd.read_sql_table('load', engine)
 
