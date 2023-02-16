@@ -19,12 +19,16 @@ for elt in cursor.description:
 
 df_load = pd.DataFrame(data, columns=cols)
 
+df_load['timestamp'] = pd.to_datetime(df_load['timestamp'])
 
-# Define your data and graphs here
-data_1 = [1, 2, 3, 4, 5]
-data_2 = [5, 4, 3, 2, 1]
-data_3 = [1, 3, 5, 2, 4]
-
+# Add a range slider for years
+year_slider = dcc.RangeSlider(
+    id='year-slider',
+    min=df_load['timestamp'].dt.year.min(),
+    max=df_load['timestamp'].dt.year.max(),
+    value=[df_load['timestamp'].dt.year.min(), df_load['timestamp'].dt.year.max()],
+    marks={str(year): str(year) for year in range(df_load['timestamp'].dt.year.min(), df_load['timestamp'].dt.year.max()+1, 5)}
+)
 
 graph_1 = go.Scatter(x=df_load[df_load['country'] == 'SE']['timestamp'], y=df_load[df_load['country'] == 'SE']
 ['forecasted_load'], name='SE_FL',line=dict(color='#990000'))
@@ -42,6 +46,7 @@ graph_7 = go.Scatter(x=df_load[df_load['country'] == 'FR']['timestamp'], y=df_lo
 ['forecasted_load'], name='FR_FL',line=dict(color='#1A661A'))
 graph_8 = go.Scatter(x=df_load[df_load['country'] == 'FR']['timestamp'], y=df_load[df_load['country'] == 'FR']
 ['actual_load'], name='FR_AL',line=dict(color='#85E085'),opacity=0.5)
+
 # Define the layout of your app
 app.layout = html.Div(children=[
     html.H1(children='Multiple Graphs with Checkboxes'),
