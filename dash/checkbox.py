@@ -21,15 +21,6 @@ df_load = pd.DataFrame(data, columns=cols)
 
 df_load['timestamp'] = pd.to_datetime(df_load['timestamp'])
 
-# Add a range slider for years
-# year_slider = dcc.RangeSlider(
-#     id='year-slider',
-#     min=df_load['timestamp'].dt.year.min(),
-#     max=df_load['timestamp'].dt.year.max(),
-#     value=[df_load['timestamp'].dt.year.min(), df_load['timestamp'].dt.year.max()],
-#     marks={str(year): str(year) for year in range(df_load['timestamp'].dt.year.min(), df_load['timestamp'].dt.year.max()+1, 5)}
-# )
-
 graph_1 = go.Scatter(x=df_load[df_load['country'] == 'SE']['timestamp'], y=df_load[df_load['country'] == 'SE']
 ['forecasted_load'], name='SE_FL',line=dict(color='#990000'))
 graph_2 = go.Scatter(x=df_load[df_load['country'] == 'SE']['timestamp'], y=df_load[df_load['country'] == 'SE']
@@ -83,8 +74,6 @@ app.layout = html.Div(children=[
     )
 ])
 
-
-# Define the callback function that updates the graph based on the checkbox values
 # Define the callback function that updates the graph based on the checkbox values and the year slider
 @app.callback(
     dash.dependencies.Output('graph', 'figure'),
