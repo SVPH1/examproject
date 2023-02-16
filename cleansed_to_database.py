@@ -25,7 +25,7 @@ def create_table(generation_table_creation):
 def countries_load_and_generation(engine):
     load_table = 'load'
     generation_table = 'generation'
-    folder = "data/harmonized/"
+    folder = "data/cleansed/"
     
     #Iterates through the folder and transfers the files to the database
     for file in os.listdir(folder):
@@ -46,7 +46,7 @@ def SE_zones(engine):
     
     create_table(engine)
     load_table = 'SE_zones_load'
-    folder = "data/harmonized/SE_zones/" 
+    folder = "data/cleansed/SE_zones/" 
 
     for file in os.listdir(folder):
         if file.endswith("load.csv"):
@@ -82,7 +82,7 @@ def SE_zones(engine):
 
 
 #Creates database connection, replace with your credentials
-engine = create_engine('postgresql://USER:PASSWORD@localhost:5432/ENTSOE')
+engine = create_engine('postgresql://postgres:Placedeadly201@localhost:5432/ENTSOE')
 create_table(engine)
 countries_load_and_generation(engine)
 SE_zones(engine)

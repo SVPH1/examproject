@@ -20,13 +20,16 @@ app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP, ])
 image_path = 'assets/logo.png'
 
 # Connect to the database using SQLAlchemy
+
 engine = sqlalchemy.create_engine('postgresql://postgres:5731@localhost:5432/ENTSOE')
+
 
 # Load data from the ENTSOE table into a pandas dataframe
 
 df_load = pd.read_sql_table("load", engine)
 #with engine.connect() as connection:
    #df_load= pd.read_sql("SELECT * FROM load",connection)
+
 # Slider
 
 
@@ -36,6 +39,7 @@ df_load = pd.read_sql_table("load", engine)
 # Line plot
 fig_ba={
 'data': [
+
 # {'x': df_load[df_load['country'] == 'DE']['timestamp'], 'y': df_load[df_load['country'] == 'DE']['forecasted_load'], 'type': 'line', 'name': 'forecasted_load DE', 'line': {'color': 'red'}},
 # {'x': df_load[df_load['country'] == 'DE']['timestamp'], 'y': df_load[df_load['country'] == 'DE']['actual_load'], 'type': 'line', 'name': 'actual_load DE', 'line': {'color': 'blue'}},
 # {'x': df_load[df_load['country'] == 'FR']['timestamp'], 'y': df_load[df_load['country'] == 'FR']['forecasted_load'], 'type': 'line', 'name': 'forecasted_load FR', 'line': {'color': 'green'}},
@@ -101,6 +105,7 @@ fig_ba={
 
 # fig_ba.update_yaxes(range=[60, 80])
 
+
 # Dropdown
 dropdown_ba = dcc.Dropdown(
     id='country-dropdown',
@@ -146,12 +151,15 @@ def group_data(df_load, frequency):
     
 # Card content
 card_content_ba_1 = dbc.Card([
+
     dbc.CardHeader("Covid-19"),
     dbc.CardBody(
         [
             html.H5("Important dates:"),
             html.P(
                 "2020-01-31 - First confirmed case of COVID-19 in Sweden",
+
+
             ),
         ])
     ])
@@ -160,6 +168,7 @@ card_content_ba_2 = dbc.Card([
     dbc.CardHeader("Ukraine War"),
     dbc.CardBody(
         [
+
             html.H5("Important dates:"),
             html.P(
                 "2022-02-24 - Russia invades Ukraine",
@@ -168,6 +177,7 @@ card_content_ba_2 = dbc.Card([
     ])
 
 card_content_ba_3 = dbc.Card([
+
     dbc.CardHeader("This is also important"),
     dbc.CardBody(
         [
@@ -180,6 +190,7 @@ card_content_ba_3 = dbc.Card([
 ##################
 # 2 # Line plot ##
 ##################
+
 
 # SQL goes brrrrrr
 ###### GERMANY ######
@@ -424,12 +435,15 @@ card_content_se_zones_generation =[
             html.Hr()
             
             
+
         ]
     ),
 ]
 
 
+
 #########################################################################################################
+
 
 # Styling
 SIDEBAR_STYLE = {
@@ -479,6 +493,8 @@ sidebar = html.Div(
         html.Br(),  # Add a break to push the image to the bottom
         html.Br(),  # Add a break to push the image to the bottom
         html.Br(),  # Add a break to push the image to the bottom
+
+
 
         html.Img(src=image_path, height=200, width=180), 
     ],
@@ -580,17 +596,22 @@ def update_page(n1, n2, n3, n4):
                     [
                         dbc.Col(
                             [
+
                                 dbc.Row(dbc.Card(card_content_generation, color="#A2BBBE")),
+
                             ],
                             width=4,
                         ),
                         dbc.Col(
                             dbc.Card(
+
                                 dcc.Graph(id='generation_graph'), color="light"
                             ),
                             width=8,
                         ),
                         dbc.Col([dbc.Card(card_content_generation_tip, color="light")]),
+
+
                     ]
                 ),
             ],
@@ -601,6 +622,7 @@ def update_page(n1, n2, n3, n4):
     elif ctx.triggered_id == "Scatter plot":
         return dbc.Container(
             [
+
                 dbc.Row(
                     [
                         dbc.Col(
@@ -617,6 +639,7 @@ def update_page(n1, n2, n3, n4):
                         ),
                         # dbc.Col([dbc.Card(card_content_se_zones_generation, color="light")]),
                     ]
+
                 ),
             ],
             className="bg-#A2BBBE",
@@ -625,9 +648,11 @@ def update_page(n1, n2, n3, n4):
         )
     elif ctx.triggered_id == "Start Page":
         return dbc.Container(
+
             [   html.H2("Welcome to VIDA",
             className="text-center"),
                 html.Br(),
+
                 html.H5(
                     "Please navigate to an analysed data set with the navigation on the left.",
                     className="text-center"
