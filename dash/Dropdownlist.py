@@ -5,10 +5,23 @@ import sqlalchemy
 import pandas as pd
 from dash.dependencies import Input, Output
 import plotly.graph_objects as go
+import psycopg2
 
-engine = sqlalchemy.create_engine('postgresql+psycopg2://postgres:tAggA67!@localhost:5432/entsoe')
+connection = psycopg2.connect(dbname="entsoe", user="postgres", password="tAggA67!", host="localhost", port="5432")
+#engine = sqlalchemy.create_engine('postgresql+psycopg2://postgres:tAggA67!@localhost:5432/entsoe')
+#query = "SELECT * FROM load"
 # Load data from the ENTSOE table into a pandas dataframe
-df_load = pd.read_sql_table('load', engine)
+#df_load = pd.read_sql_query(query, engine)
+cursor = connection.cursor()
+df_load = cursor.execute("SELECT * FROM load")
+
+data = cursor.fetchall()
+cols = []
+for elt in cursor.description:
+    cols.append(elt[0])
+
+df_load = pd.DataFrame(data, columns=cols)
+
 
 # print (df_load)
 
