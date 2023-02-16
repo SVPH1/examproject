@@ -20,14 +20,15 @@ app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP, ])
 image_path = 'assets/logo.png'
 
 # Connect to the database using SQLAlchemy
-engine = sqlalchemy.create_engine('postgresql://postgres:Vera1234?@localhost:5432/entsoe')
+
+engine = sqlalchemy.create_engine('postgresql://postgres:5731@localhost:5432/ENTSOE')
+
 
 # Load data from the ENTSOE table into a pandas dataframe
 
 df_load = pd.read_sql_table("load", engine)
 #with engine.connect() as connection:
    #df_load= pd.read_sql("SELECT * FROM load",connection)
-
 
 # Slider
 
@@ -38,22 +39,72 @@ df_load = pd.read_sql_table("load", engine)
 # Line plot
 fig_ba={
 'data': [
-{'x': df_load[df_load['country'] == 'DE']['timestamp'], 'y': df_load[df_load['country'] == 'DE']['forecasted_load'], 'type': 'line', 'name': 'forecasted_load DE', 'line': {'color': 'red'}},
-{'x': df_load[df_load['country'] == 'DE']['timestamp'], 'y': df_load[df_load['country'] == 'DE']['actual_load'], 'type': 'line', 'name': 'actual_load DE', 'line': {'color': 'blue'}},
-{'x': df_load[df_load['country'] == 'FR']['timestamp'], 'y': df_load[df_load['country'] == 'FR']['forecasted_load'], 'type': 'line', 'name': 'forecasted_load FR', 'line': {'color': 'green'}},
-{'x': df_load[df_load['country'] == 'FR']['timestamp'], 'y': df_load[df_load['country'] == 'FR']['actual_load'], 'type': 'line', 'name': 'actual_load FR', 'line': {'color': 'yellow'}},
+
+# {'x': df_load[df_load['country'] == 'DE']['timestamp'], 'y': df_load[df_load['country'] == 'DE']['forecasted_load'], 'type': 'line', 'name': 'forecasted_load DE', 'line': {'color': 'red'}},
+# {'x': df_load[df_load['country'] == 'DE']['timestamp'], 'y': df_load[df_load['country'] == 'DE']['actual_load'], 'type': 'line', 'name': 'actual_load DE', 'line': {'color': 'blue'}},
+# {'x': df_load[df_load['country'] == 'FR']['timestamp'], 'y': df_load[df_load['country'] == 'FR']['forecasted_load'], 'type': 'line', 'name': 'forecasted_load FR', 'line': {'color': 'green'}},
+# {'x': df_load[df_load['country'] == 'FR']['timestamp'], 'y': df_load[df_load['country'] == 'FR']['actual_load'], 'type': 'line', 'name': 'actual_load FR', 'line': {'color': 'yellow'}},
 {'x': df_load[df_load['country'] == 'SE']['timestamp'], 'y': df_load[df_load['country'] == 'SE']['forecasted_load'], 'type': 'line', 'name': 'forecasted_load SE', 'line': {'color': 'black'}},
-{'x': df_load[df_load['country'] == 'SE']['timestamp'], 'y': df_load[df_load['country'] == 'SE']['actual_load'], 'type': 'line', 'name': 'actual_load SE', 'line': {'color': 'purple'}},
+{'x': df_load[df_load['country'] == 'SE']['timestamp'], 'y': df_load[df_load['country'] == 'SE']['actual_load'], 'type': 'line', 'name': 'actual_load SE', 'line': {'color': '#CE7C72'}},
 {'x': df_load[df_load['country'] == 'DK']['timestamp'], 'y': df_load[df_load['country'] == 'DK']['forecasted_load'], 'type': 'line', 'name': 'forecasted_load DK', 'line': {'color': 'pink'}},
-{'x': df_load[df_load['country'] == 'DK']['timestamp'], 'y': df_load[df_load['country'] == 'DK']['actual_load'], 'type': 'line', 'name': 'actual_load DK', 'line': {'color': 'gray'}},
+{'x': df_load[df_load['country'] == 'DK']['timestamp'], 'y': df_load[df_load['country'] == 'DK']['actual_load'], 'type': 'line', 'name': 'actual_load DK', 'line': {'color': '#CE7C72'}},
 
 ],
 'layout': {
-'title': 'Line Plot of Forecasted Load and Actual Load by Country',
-'template': "plotly_white" 
+    'title': 'Line Plot of Forecasted Load and Actual Load by Country',
+    'template': "plotly_white",
+    'shapes': [
+        {
+            'type': 'line',
+            'x0': '2022-02-23',
+            'y0': 0,
+            'x1':'2022-02-23',
+            'y1': 1,
+            'yref': 'paper',
+            'line': {
+                'color': '#235359',
+                'width': 2
+            }
+        },
+        {
+            'type': 'line',
+            'x0': '2020-03-20',
+            'y0': 0,
+            'x1': '2020-03-20',
+            'y1': 1,
+            'yref': 'paper',
+            'line': {
+                'color': '#235359',
+                'width': 2
+            }
+        }
+    ],
+    'annotations': [
+        {
+            'x': '2022-02-23',
+            'y': 15000,
+            'text': 'Russia invades Ukraine',
+            'showarrow': False,
+            'font': {
+                'color': 'black'
+            }
+        },
+        {
+            'x': '2020-01-31',
+            'y': 15000,
+            'text': 'First confirmed case of COVID-19 in Sweden',
+            'showarrow': False,
+            'font': {
+                'color': 'black'
+            }
+        }
+    ],
+    'hovermode': 'closest'
 }
 }
-#fig_ba.update_yaxes(range=[60, 80])
+
+# fig_ba.update_yaxes(range=[60, 80])
+
 
 # Dropdown
 dropdown_ba = dcc.Dropdown(
@@ -100,12 +151,15 @@ def group_data(df_load, frequency):
     
 # Card content
 card_content_ba_1 = dbc.Card([
-    dbc.CardHeader("Card header"),
+
+    dbc.CardHeader("Covid-19"),
     dbc.CardBody(
         [
-            html.H5("Covid"),
+            html.H5("Important dates:"),
             html.P(
-                "Here you might want to add some statics or further information for your dashboard",
+                "2020-01-31 - First confirmed case of COVID-19 in Sweden",
+
+
             ),
         ])
     ])
@@ -114,20 +168,22 @@ card_content_ba_2 = dbc.Card([
     dbc.CardHeader("Ukraine War"),
     dbc.CardBody(
         [
-            html.H5("Card title"),
+
+            html.H5("Important dates:"),
             html.P(
-                "Here you might want to add some statics or further information for your dashboard",
+                "2022-02-24 - Russia invades Ukraine",
             ),
         ])
     ])
 
 card_content_ba_3 = dbc.Card([
-    dbc.CardHeader("Card header"),
+
+    dbc.CardHeader("This is also important"),
     dbc.CardBody(
         [
-            html.H5("Card title"),
+            html.H5("But not as important as the other two"),
             html.P(
-                "Here you might want to add some statics or further information for your dashboard",
+                "",
             ),
         ])
     ])
@@ -135,83 +191,259 @@ card_content_ba_3 = dbc.Card([
 # 2 # Line plot ##
 ##################
 
-# Data
-df_li = px.data.stocks()
-df_li["date"] = pd.to_datetime(df_li["date"], format="%Y-%m-%d")
 
-# Figure
-fig = px.line(
-    df_li, x="date", y=["AAPL"], template="plotly_white", title="My Plotly Graph"
-)
+# SQL goes brrrrrr
+###### GERMANY ######
+query_de_2017 = "SELECT * FROM generation WHERE country = 'DE' and timestamp >= '2017-01-01' and timestamp <= '2017-12-31'"
+query_de_2018 = "SELECT * FROM generation WHERE country = 'DE' and timestamp >= '2018-01-01' and timestamp <= '2018-12-31'"
+query_de_2019 = "SELECT * FROM generation WHERE country = 'DE' and timestamp >= '2019-01-01' and timestamp <= '2019-12-31'"
+query_de_2020 = "SELECT * FROM generation WHERE country = 'DE' and timestamp >= '2020-01-01' and timestamp <= '2020-12-31'"
+query_de_2021 = "SELECT * FROM generation WHERE country = 'DE' and timestamp >= '2021-01-01' and timestamp <= '2021-12-31'"
+query_de_2022 = "SELECT * FROM generation WHERE country = 'DE' and timestamp >= '2022-01-01' and timestamp <= '2022-12-31'"
+df_generation_de_2017 = pd.read_sql_query(query_de_2017, engine)
+df_generation_de_2018 = pd.read_sql_query(query_de_2018, engine)
+df_generation_de_2019 = pd.read_sql_query(query_de_2019, engine)
+df_generation_de_2020 = pd.read_sql_query(query_de_2020, engine)
+df_generation_de_2021 = pd.read_sql_query(query_de_2021, engine)
+df_generation_de_2022 = pd.read_sql_query(query_de_2022, engine)
+###### DENMARK ######
+query_dk_2017 = "SELECT * FROM generation WHERE country = 'DK' and timestamp >= '2017-01-01' and timestamp <= '2017-12-31'"
+query_dk_2018 = "SELECT * FROM generation WHERE country = 'DK' and timestamp >= '2018-01-01' and timestamp <= '2018-12-31'"
+query_dk_2019 = "SELECT * FROM generation WHERE country = 'DK' and timestamp >= '2019-01-01' and timestamp <= '2019-12-31'"
+query_dk_2020 = "SELECT * FROM generation WHERE country = 'DK' and timestamp >= '2020-01-01' and timestamp <= '2020-12-31'"
+query_dk_2021 = "SELECT * FROM generation WHERE country = 'DK' and timestamp >= '2021-01-01' and timestamp <= '2021-12-31'"
+query_dk_2022 = "SELECT * FROM generation WHERE country = 'DK' and timestamp >= '2022-01-01' and timestamp <= '2022-12-31'"
+df_generation_dk_2017 = pd.read_sql_query(query_dk_2017, engine)
+df_generation_dk_2018 = pd.read_sql_query(query_dk_2018, engine)
+df_generation_dk_2019 = pd.read_sql_query(query_dk_2019, engine)
+df_generation_dk_2020 = pd.read_sql_query(query_dk_2020, engine)
+df_generation_dk_2021 = pd.read_sql_query(query_dk_2021, engine)
+df_generation_dk_2022 = pd.read_sql_query(query_dk_2022, engine)
+###### FRANCE ######
+query_fr_2017 = "SELECT * FROM generation WHERE country = 'FR' and timestamp >= '2017-01-01' and timestamp <= '2017-12-31'"
+query_fr_2018 = "SELECT * FROM generation WHERE country = 'FR' and timestamp >= '2018-01-01' and timestamp <= '2018-12-31'"
+query_fr_2019 = "SELECT * FROM generation WHERE country = 'FR' and timestamp >= '2019-01-01' and timestamp <= '2019-12-31'"
+query_fr_2020 = "SELECT * FROM generation WHERE country = 'FR' and timestamp >= '2020-01-01' and timestamp <= '2020-12-31'"
+query_fr_2021 = "SELECT * FROM generation WHERE country = 'FR' and timestamp >= '2021-01-01' and timestamp <= '2021-12-31'"
+query_fr_2022 = "SELECT * FROM generation WHERE country = 'FR' and timestamp >= '2022-01-01' and timestamp <= '2022-12-31'"
+df_generation_fr_2017 = pd.read_sql_query(query_fr_2017, engine)
+df_generation_fr_2018 = pd.read_sql_query(query_fr_2018, engine)
+df_generation_fr_2019 = pd.read_sql_query(query_fr_2019, engine)
+df_generation_fr_2020 = pd.read_sql_query(query_fr_2020, engine)
+df_generation_fr_2021 = pd.read_sql_query(query_fr_2021, engine)
+df_generation_fr_2022 = pd.read_sql_query(query_fr_2022, engine)
+###### SWEDEN ######
+query_se_2017 = "SELECT * FROM generation WHERE country = 'SE' and timestamp >= '2017-01-01' and timestamp <= '2017-12-31'"
+query_se_2018 = "SELECT * FROM generation WHERE country = 'SE' and timestamp >= '2018-01-01' and timestamp <= '2018-12-31'"
+query_se_2019 = "SELECT * FROM generation WHERE country = 'SE' and timestamp >= '2019-01-01' and timestamp <= '2019-12-31'"
+query_se_2020 = "SELECT * FROM generation WHERE country = 'SE' and timestamp >= '2020-01-01' and timestamp <= '2020-12-31'"
+query_se_2021 = "SELECT * FROM generation WHERE country = 'SE' and timestamp >= '2021-01-01' and timestamp <= '2021-12-31'"
+query_se_2022 = "SELECT * FROM generation WHERE country = 'SE' and timestamp >= '2022-01-01' and timestamp <= '2022-12-31'"
+df_generation_se_2017 = pd.read_sql_query(query_se_2017, engine)
+df_generation_se_2018 = pd.read_sql_query(query_se_2018, engine)
+df_generation_se_2019 = pd.read_sql_query(query_se_2019, engine)
+df_generation_se_2020 = pd.read_sql_query(query_se_2020, engine)
+df_generation_se_2021 = pd.read_sql_query(query_se_2021, engine)
+df_generation_se_2022 = pd.read_sql_query(query_se_2022, engine)
+
 
 # Dropdown
-dropdown = dcc.Dropdown(options=["AAPL", "GOOG", "MSFT"], value="AAPL")
-
-# Date Picker
-date_range = dcc.DatePickerRange(
-    start_date_placeholder_text="start date",
-    end_date_placeholder_text="end date",
-    min_date_allowed=df_li.date.min(),
-    max_date_allowed=df_li.date.max(),
-    display_format="DD-MMM-YYYY",
-    first_day_of_week=1,
-)
-
-# Checklist
-checklist = dbc.Checklist(
-    options=[{"label": "Dark theme", "value": 1}],
-    value=[],
-    switch=True,
-)
-
-# Radio items
-radio_items = dbc.RadioItems(
+radio_country = dbc.RadioItems(
+    id='country_selector',
     options=[
-        {"label": "Red", "value": 0},
-        {"label": "Green", "value": 1},
-        {"label": "Blue", "value": 2},
+        {"label": "Germany", "value": "DE"},
+        {"label": "Denmark", "value": "DK"},
+        {"label": "France", "value": "FR"},
+        {"label": "Sweden", "value": "SE"}
     ],
-    value=2,
-    inline=True,
+    value="DE"
 )
+
+radio_time_period = dbc.RadioItems(
+    id='year_selector',
+    options=[
+        {"label": "2017", "value": 0},
+        {"label": "2018", "value": 1},
+        {"label": "2019", "value": 2},
+        {"label": "2020", "value": 3},
+        {"label": "2021", "value": 4},
+        {"label": "2022", "value": 5}
+    ],
+    value=0,
+    inline=True
+)
+
+# Define the callback
+@app.callback(
+    Output('generation_graph', 'figure'),
+    Input('year_selector', 'value'),
+    Input('country_selector', 'value')
+
+    #Hahahaha, ja du, går det så går det...
+)
+def generation_graph(year, country):
+    if year == 0 and country == 'DE':
+        df = df_generation_de_2017
+    elif year == 1 and country == 'DE':
+        df = df_generation_de_2018
+    elif year == 2 and country == 'DE':
+        df = df_generation_de_2019
+    elif year == 3 and country == 'DE':
+        df = df_generation_de_2020
+    elif year == 4 and country == 'DE':
+        df = df_generation_de_2021
+    elif year == 5 and country == 'DE':
+        df = df_generation_de_2022
+    elif year == 0 and country == 'DK':
+        df = df_generation_dk_2017
+    elif year == 1 and country == 'DK':
+        df = df_generation_dk_2018
+    elif year == 2 and country == 'DK':
+        df = df_generation_dk_2019
+    elif year == 3 and country == 'DK':
+        df = df_generation_dk_2020
+    elif year == 4 and country == 'DK':
+        df = df_generation_dk_2021
+    elif year == 5 and country == 'DK':
+        df = df_generation_dk_2022
+    elif year == 0 and country == 'FR':
+        df = df_generation_fr_2017
+    elif year == 1 and country == 'FR':
+        df = df_generation_fr_2018
+    elif year == 2 and country == 'FR':
+        df = df_generation_fr_2019
+    elif year == 3 and country == 'FR':
+        df = df_generation_fr_2020
+    elif year == 4 and country == 'FR':
+        df = df_generation_fr_2021
+    elif year == 5 and country == 'FR':
+        df = df_generation_fr_2022
+    elif year == 0 and country == 'SE':
+        df = df_generation_se_2017
+    elif year == 1 and country == 'SE':
+        df = df_generation_se_2018
+    elif year == 2 and country == 'SE':
+        df = df_generation_se_2019
+    elif year == 3 and country == 'SE':
+        df = df_generation_se_2020
+    elif year == 4 and country == 'SE':
+        df = df_generation_se_2021
+    elif year == 5 and country == 'SE':
+        df = df_generation_se_2022
+
+    df_sum = df.groupby('country').sum()
+
+    fig = px.bar(df_sum, x=df_sum.index, y=df_sum.columns,
+                 barmode='group',
+                 title='Total Generation by Source and Country')
+    fig.update_layout(legend_title_text="Energy Source")
+    return fig
+
 
 # Card content
-card_content = [
+card_content_generation = [
     dbc.CardBody(
         [
-            html.H5("Control Panel"),
-            html.P(
-                "1) Select an option of the dropdown",
-            ),
-            dropdown,
+            html.H4("This graph shows a country's total generation by source, for a given year"),
             html.Br(),
-            html.P(
-                "2) Pick a date range from the form",
+            html.H5(
+                "1) Select a country",
             ),
-            date_range,
+            radio_country,
+            html.Br(),
+            html.Br(),
+            html.H5(
+                "2) Choose a year",
+            ),
+            radio_time_period,
             html.Br(),
             html.Hr(),
-            html.H6("Optional input"),
-            html.P(
-                "3) Enable dark theme of your graph",
-            ),
-            checklist,
-            html.Br(),
-            html.P(
-                "4) Change the color of the graphs line",
-            ),
-            radio_items,
+            
+            
         ]
     ),
 ]
 
-#####################
-# 3 # Scatter plot ##
-#####################
+card_content_generation_tip = dbc.Card([
+    dbc.CardBody(
+        [
+            html.H5("Tip:"),
+            html.H6(
+                "You can click on a title under energy source on the legend to remove it from the graph or double click it to view it on its own")
 
-# Data
-df_sc = px.data.gapminder()
-df_2007 = df_sc[df_sc.year == 2007]
+        ])
+    ])
+
+#########################################################################################################
+# 3 GENERATION SE ZONES ##
+#########################################################################################################
+
+query_se_1 = "SELECT se_zone, fossil_gas, hydro_water_reservoir, nuclear, other, solar, wind_onshore FROM se_zones_generation WHERE se_zone = 'SE_1';"
+query_se_2 = "SELECT se_zone, fossil_gas, hydro_water_reservoir, nuclear, other, solar, wind_onshore FROM se_zones_generation WHERE se_zone = 'SE_2';"
+query_se_3 = "SELECT se_zone, fossil_gas, hydro_water_reservoir, nuclear, other, solar, wind_onshore FROM se_zones_generation WHERE se_zone = 'SE_3';"
+query_se_4 = "SELECT se_zone, fossil_gas, hydro_water_reservoir, nuclear, other, solar, wind_onshore FROM se_zones_generation WHERE se_zone = 'SE_4';"
+
+
+df_generation_se_1 = pd.read_sql_query(query_se_1, engine)
+df_generation_se_2 = pd.read_sql_query(query_se_2, engine)
+df_generation_se_3 = pd.read_sql_query(query_se_3, engine)
+df_generation_se_4 = pd.read_sql_query(query_se_4, engine)
+
+radio_zone = dbc.RadioItems(
+    id='zone_selector',
+    options=[
+        {"label": "Zone 1", "value": "SE_1"},
+        {"label": "Zone 2", "value": "SE_2"},
+        {"label": "Zone 3", "value": "SE_3"},
+        {"label": "Zone 4", "value": "SE_4"},
+    ],
+    value="SE_1"
+)
+
+@app.callback(
+    Output('se_zones_generation_graph', 'figure'),
+    Input('zone_selector', 'value'))
+
+def se_zones_generation_graph(zone):
+    if zone == 'SE_1':
+        df = df_generation_se_1
+    elif zone == 'SE_2':
+        df = df_generation_se_2
+    elif zone == 'SE_3':
+        df = df_generation_se_3
+    elif zone == 'SE_4':
+        df = df_generation_se_4
+
+    df_sum = df.groupby('se_zone').sum()
+
+    fig = px.bar(df_sum, x=df_sum.index, y=df_sum.columns,
+                 barmode='group',
+                 title='Total Generation by Source and Zone')
+    fig.update_layout(legend_title_text="Energy Source")
+    return fig
+
+card_content_se_zones_generation =[
+    dbc.CardBody(
+        [
+            html.H4("This graph shows Sweden's four different electrical zones and their total generation by source, for the year 2022"),
+            html.Br(),
+            html.H5(
+                "Select a zone",
+            ),
+            radio_zone,
+            html.Br(),
+            html.Hr()
+            
+            
+
+        ]
+    ),
+]
+
+
+
+#########################################################################################################
+
 
 # Styling
 SIDEBAR_STYLE = {
@@ -261,9 +493,8 @@ sidebar = html.Div(
         html.Br(),  # Add a break to push the image to the bottom
         html.Br(),  # Add a break to push the image to the bottom
         html.Br(),  # Add a break to push the image to the bottom
-        html.Br(),  # Add a break to push the image to the bottom
-        html.Br(),  # Add a break to push the image to the bottom
-        html.Br(),  # Add a break to push the image to the bottom
+
+
 
         html.Img(src=image_path, height=200, width=180), 
     ],
@@ -365,16 +596,22 @@ def update_page(n1, n2, n3, n4):
                     [
                         dbc.Col(
                             [
-                                dbc.Row(dbc.Card(card_content, color="#A2BBBE")),
+
+                                dbc.Row(dbc.Card(card_content_generation, color="#A2BBBE")),
+
                             ],
                             width=4,
                         ),
                         dbc.Col(
                             dbc.Card(
-                                dcc.Graph(id="figure1", figure=fig), color="light"
+
+                                dcc.Graph(id='generation_graph'), color="light"
                             ),
                             width=8,
                         ),
+                        dbc.Col([dbc.Card(card_content_generation_tip, color="light")]),
+
+
                     ]
                 ),
             ],
@@ -385,16 +622,24 @@ def update_page(n1, n2, n3, n4):
     elif ctx.triggered_id == "Scatter plot":
         return dbc.Container(
             [
-                html.H3("Analysis on Life Expectation / GDP per Capita in 2007"),
-                dcc.Graph(
-                    figure=px.scatter(
-                        df_2007,
-                        x="gdpPercap",
-                        y="lifeExp",
-                        color="continent",
-                        size="pop",
-                        size_max=60,
-                    )
+
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            [
+                                dbc.Row(dbc.Card(card_content_se_zones_generation, color="#A2BBBE")),
+                            ],
+                            width=4,
+                        ),
+                        dbc.Col(
+                            dbc.Card(
+                                dcc.Graph(id='se_zones_generation_graph'), color="light"
+                            ),
+                            width=8,
+                        ),
+                        # dbc.Col([dbc.Card(card_content_se_zones_generation, color="light")]),
+                    ]
+
                 ),
             ],
             className="bg-#A2BBBE",
@@ -403,7 +648,11 @@ def update_page(n1, n2, n3, n4):
         )
     elif ctx.triggered_id == "Start Page":
         return dbc.Container(
-            [
+
+            [   html.H2("Welcome to VIDA",
+            className="text-center"),
+                html.Br(),
+
                 html.H5(
                     "Please navigate to an analysed data set with the navigation on the left.",
                     className="text-center"
