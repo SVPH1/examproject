@@ -65,7 +65,7 @@ def update_figures(selected_option):
         df_filtered = df_load[df_load['country'] == 'DE']
         # Create a line chart with the filtered data
         figures = {'data': [go.Scatter(x=df_filtered['timestamp'], y=df_filtered['forecasted_load'],
-        mode='lines', name='forecasted_load SE', line={'color': 'red'})]}
+        mode='lines', name='forecasted_load DE', line={'color': 'red'})]}
         # Update the layout of the figure
         figures['layout'] = {'title': 'DE Forecasted Load', 'xaxis': {'title': 'Timestamp'}, 'yaxis': {'title': 'Load'}}
 
@@ -75,13 +75,30 @@ def update_figures(selected_option):
     
 
     elif selected_option == 'option3':
-        figures = [
-            {'data': [{'x': [1, 8, 3], 'y': [3, 6, 9], 'type': 'bar'}]}
-        ]
+        # Filter the DataFrame for the selected country
+        df_filtered = df_load[df_load['country'] == 'DK']
+        # Create a line chart with the filtered data
+        figures = {'data': [go.Scatter(x=df_filtered['timestamp'], y=df_filtered['forecasted_load'],
+        mode='lines', name='forecasted_load DK', line={'color': 'yellow'})]}
+        # Update the layout of the figure
+        figures['layout'] = {'title': 'DK Forecasted Load', 'xaxis': {'title': 'Timestamp'}, 'yaxis': {'title': 'Load'}}
+
+        return [{'data': [{'x': df_load[df_load['country'] == 'DK']['timestamp'], 'y': df_load[df_load['country'] == 'DK']
+        ['forecasted_load'], 'type': 'line', 'name': 'forecasted_load DK', 'line': {'color': 'yellow'}}]}]
+
     elif selected_option == 'option4':
-        figures = [
-            {'data': [{'x': [1, 256, 3], 'y': [3, 6, 9], 'type': 'bar'}]}
-        ]
+         # Filter the DataFrame for the selected country
+        df_filtered = df_load[df_load['country'] == 'FR']
+        # Create a line chart with the filtered data
+        figures = {'data': [go.Scatter(x=df_filtered['timestamp'], y=df_filtered['forecasted_load'],
+        mode='lines', name='forecasted_load FR', line={'color': 'green'})]}
+        # Update the layout of the figure
+        figures['layout'] = {'title': 'FR Forecasted Load', 'xaxis': {'title': 'Timestamp'}, 'yaxis': {'title': 'Load'}}
+
+        return [{'data': [{'x': df_load[df_load['country'] == 'FR']['timestamp'], 'y': df_load[df_load['country'] == 'FR']
+        ['forecasted_load'], 'type': 'line', 'name': 'forecasted_load FR', 'line': {'color': 'green'}}]}]
+
+       
     elif selected_option == 'option5':
         figures = [
             {'data': [{'x': [1, 232, 3], 'y': [3, 6, 9], 'type': 'bar'}]}
