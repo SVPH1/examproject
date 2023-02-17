@@ -72,19 +72,19 @@ card_content_checklist = dbc.Card(
     dcc.Checklist(
         id='graph-checkboxes',
         options=[
-            {'label': 'SVERIGEEEEE', 'value': 'graph_1'},
-            {'label': 'SE Actual Load', 'value': 'graph_2'},
-            {'label': 'DE Forecasted Load', 'value': 'graph_3'},
-            {'label': 'DE Actual Load', 'value': 'graph_4'},
-            {'label': 'DK Forecasted Load', 'value': 'graph_5'},
-            {'label': 'DK Actual Load', 'value': 'graph_6'},
-            {'label': 'FR Forecasted Load', 'value': 'graph_7'},
-            {'label': 'FR Actual Load', 'value': 'graph_8'},
+            {'label': ' SE Forecasted Load', 'value': 'graph_1'},
+            {'label': ' SE Actual Load', 'value': 'graph_2'},
+            {'label': ' DE Forecasted Load', 'value': 'graph_3'},
+            {'label': ' DE Actual Load', 'value': 'graph_4'},
+            {'label': ' DK Forecasted Load', 'value': 'graph_5'},
+            {'label': ' DK Actual Load', 'value': 'graph_6'},
+            {'label': ' FR Forecasted Load', 'value': 'graph_7'},
+            {'label': ' FR Actual Load', 'value': 'graph_8'},
             
         ],
-        labelStyle={'display': 'block', 'margin': '10px'},
+        labelStyle={'display': 'inline-block', 'margin': '10px'},
         value=['graph_1'],
-        )
+        )   
     )
 
 
@@ -136,10 +136,12 @@ card_content_ba_1 = dbc.Card([
     dbc.CardHeader("Covid-19"),
     dbc.CardBody(
         [
-            html.H5("Important dates:"),
+           
             html.P(
-                "2020-01-31 - First confirmed case of COVID-19 in Sweden",
-            ),
+                "2020-01-31 - First confirmed case of COVID-19 in Sweden"),
+            html.P("2020-03-11 - WHO declares the COVID-19 outbreak a global pandemic"),
+            html.P("2022-02-09 - Restrictions removed in Sweden"),
+            
         ])
     ])
     
@@ -147,22 +149,24 @@ card_content_ba_2 = dbc.Card([
     dbc.CardHeader("Ukraine War"),
     dbc.CardBody(
         [
-            html.H5("Important dates:"),
+            
             html.P(
-                "2022-02-24 - Russia invades Ukraine",
-            ),
+                "2022-02-21 - Russia recognizes DPR and LPR as independent states"),
+            html.P(
+                "2022-02-24 - Full scale Russian invasion of Ukraine"),
+   
         ])
     ])
 
 card_content_ba_3 = dbc.Card([
-    dbc.CardHeader("This is also important"),
+    dbc.CardHeader("Miscellaneous dates"),
     dbc.CardBody(
         [
-            html.H5("But not as important as the other two"),
-            html.P(
-                "",
-            ),
-        ])
+            html.H5(""),
+            html.P("2020-03-16 - France initias full scale lockdown"),
+            html.P("2021-01-16 - France initias second full scale lockdown"),
+            html.P("2022-09-02 - Russia shuts gas supply to Europe"),
+            ])
     ])
 ##################
 # 2 # Generation ##
@@ -523,7 +527,6 @@ sidebar = html.Div(
         html.Br(),  # Add a break to push the image to the bottom
         html.Br(),  # Add a break to push the image to the bottom
         html.Br(),  # Add a break to push the image to the bottom
-        html.Br(),  # Add a break to push the image to the bottom
         
 
         html.Img(src=image_path, height=200, width=180), 
@@ -590,10 +593,10 @@ def update_page(n1, n2, n3, n4, n5):
                     [
                         dbc.Col(
                             [
-                                html.P("Select the countries to display"),
-                                card_content_checklist,
+                                html.H3("Select the countries to display"),
+                                card_content_checklist, 
                             
-                            ]
+                            ],style={'width': '75px'}
                         ),
                         dbc.Col(
                             [
@@ -620,7 +623,7 @@ def update_page(n1, n2, n3, n4, n5):
             ],
             className="bg-#A2BBBE",
             fluid=True,
-            style={"height": "100vh"},  
+            style={"height": "100vh"}, 
         )
     elif ctx.triggered_id == "Generation per country":
         return dbc.Container(
@@ -709,11 +712,24 @@ def update_page(n1, n2, n3, n4, n5):
         )
     else:
         return dbc.Container(
-            [
-                html.H5(
-                    "Please navigate to an analysed data set with the navigation on the left.",
+            [   html.H1("WELCOME TO VIDA",
+            className="text-center"),
+                html.Br(),
+                html.H4(
+                    "We have developed an app for studying the impact of global disasters on energy consumption and generation sources due to these.",
                     className="text-center"
                 ),
+                html.Br(),
+                html.H4("The app enables the user to investigate both energy consumption and generation sources in an effortless manor. The data used is collected from ENTSO-E, the European association for the cooperation of transmission system operators (TSOs) for electricity. The data has been verified by using several different independent sources.",
+                className="text-center"),
+                html.Br(),
+                html.H4("The app is done as a graduation project for Brights Data Engineer program Winter 2022. We who have designed the app are Åsa Ericsson, Jesper Eriksson, Valentin Phersson and Santi Taweesamarn.",
+                className="text-center"),
+                html.Br(),
+                html.H4("Please check out our Github for this project HERE",
+                #give a link to the git hub
+
+                className="text-center"),
             ],
             
             className="bg-#A2BBBE",
